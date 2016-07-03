@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+
+
+{% block title %}
+{{title}}
+{%endblock%}
+
+{% block content %}
+<script src='http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js'></script>
+	{% for item in items %}
+		{% if loop.first %}<ul>{% endif %}
+			<li><a href="/n?{{ item._id.toString() }}">{{ item.title }}</a></li>
+		{% if loop.last %}<ul>{% endif %}
+	{% endfor %}
+<script>
+function testAjax(){
+		var opt={
+			type:'post',
+			url:'./model',
+			contentType:'application/json',
+			dataType:'json',
+			data:{},
+			success:function(res){
+				var progress=res;
+					window.stop();
+					//下面的方法是针对IE的
+					document.execCommand("stop");
+			},
+			error:function(err){
+				console.log(err);
+			}
+		};
+		$.ajax(opt);
+	}
+</script>
+{%endblock%}

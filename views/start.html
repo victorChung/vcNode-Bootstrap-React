@@ -1,0 +1,51 @@
+{% extends 'layout.html' %}
+
+
+{% block title %}
+{{title}}
+{%endblock%}
+
+{% block content %}
+<form action="/upload" method="post"  enctype="multipart/form-data">
+	<input type="file" name="upload" multiple="nultiple" />
+	<input type="submit" id='btn_sub' value="Upload file" />
+</form>
+<div id="prog">
+	
+</div>
+
+<script src='http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js'></script>
+
+<script>
+	$(function(){
+		$('#btn_sub').on('click',function(){
+			getUploadProgress();		
+		});	
+
+	});	
+	function getUploadProgress(){
+		var opt={
+			type:'post',
+			url:'./uploadProgress',
+			contentType:'application/json',
+			dataType:'json',
+			data:{},
+			success:function(res){
+				var progress=res.progress;
+				$('#prog').html(progress);
+				if(progress<100){
+					setTimeout(getUploadProgress,1);
+				}else{
+					window.stop();
+					//下面的方法是针对IE的
+					document.execCommand("stop");
+				}
+			},
+			error:function(err){
+				console.log(err);
+			}
+		};
+		$.ajax(opt);
+	}
+</script>
+{%endblock%}

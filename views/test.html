@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="UTF-8">	
+		<script type="text/javascript">
+
+			var db = openDatabase('mydb', '1.0', 'Test DB', 2 * 1024 * 1024);
+			var msg;
+			db.transaction(function (tx) {
+					tx.executeSql('SELECT * FROM LOGS', [], function (tx, results) {
+						var len = results.rows.length, i;
+						msg = "<p>查询记录条数: " + len + "</p>";
+						document.querySelector('#status').innerHTML +=  msg;
+
+						for (i = 0; i < len; i++){
+						msg = "<p><b>" + results.rows.item(i).log + "</b></p>";
+						document.querySelector('#status').innerHTML +=  msg;
+						}
+						}, null);
+					});
+function sse(){
+	if(typeof(EventSource)!=="undefined"){
+		var source=new EventSource('/serverSentEvent');
+		source.onmessage=function(event){
+			document.getElementById("sst").innerHTML+=event.data + "<br>";
+		};
+		source.onerror=function(err){
+				console.log('errrrooorr : '+err);
+			};
+	}else{
+
+	}
+}
+</script>
+
+</head>
+
+<body>
+	<button onclick="sse();">sse</button>
+	<div id="status" name="status">状态信息</div>
+	<div id="sst"></div>
+</body>
+
+																																																																					</html>
+

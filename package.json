@@ -1,0 +1,27 @@
+{
+  "name": "second",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.14.0",
+    "express-session": "^1.13.0",
+    "formidable": "^1.0.17",
+    "mongodb": "^2.1.18",
+    "mongoose": "^4.5.3",
+    "monk": "^2.1.0",
+    "morgan": "^1.7.0",
+    "nodemon": "^1.9.2",
+    "serve-favicon": "^2.3.0",
+    "socket.io": "^1.4.8",
+    "swig": "^1.4.2"
+  }
+}

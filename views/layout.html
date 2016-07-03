@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv='Content-Type' content='text/html' charset='utf-8' / >
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0" >
+	<link href="http://apps.bdimg.com/libs/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+	{% block head %}{% endblock %}	
+</head>
+<body>
+	<header style="height:100%;overflow:auto;">
+	<nav class="navbar navbar-default col-lg-10 col-lg-offset-1" role="navigation">
+		<div class="navbar-header col-lg-offset-2 col-md-offset-1 col-sm-offset-1">
+			<span class="navbar-brand">That is it</span>
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNav">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+		</div>
+		<div class="navbar-collapse collapse" id="myNav" ng-controller="navCtrl">
+			<ul class="nav navbar-nav nav-pills">
+				<li><a href="/">Home</a></li>	
+				<li><a href="/list">Articles</a></li>	
+				<li><a href="profile.html">Profile</a></li>	
+				<li><a href="/webSocket"><span class="badge pull-right">2</span>Chat</a></li>
+				<li class="hidden-xs"><a href="contact">Contact</a></li>	
+			</ul>
+		</div>
+	</nav>
+	<style>
+		#myNav ul li:hover>a{
+			color:#555;
+			background-color:#e7e7e7;
+		}
+	</style>
+	<div class="col-lg-1 visible-lg"></div>
+	</header>
+
+	<h1 class="container">Hello {% block title%}{%endblock%}</h1>
+	<div class="container">
+		{% block content %}{%endblock%}
+	</div>
+
+	<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script src="http://apps.bdimg.com/libs/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+</body>
+</html>
