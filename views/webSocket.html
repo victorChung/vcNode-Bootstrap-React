@@ -41,7 +41,7 @@
 			var sect_ul=document.querySelector('#showMsg ul');
 			var ttime=new Date(data.time);
 			var ddate=ttime.getHours()+':'+ttime.getMinutes()+':'+ttime.getSeconds();
-			sect_ul.innerHTML+='<li>'+data.author+': '+data.text+' '+ddate+'</li>';	
+			sect_ul.innerHTML+='<li><label class="'+data.author+'">'+data.author+'</label>: '+data.text+' '+ddate+'</li>';	
 
 		});
 		socket.on('private message',function(data){
@@ -69,8 +69,48 @@
 			//socket.emit('sendMyData',{msg:txt});
 			document.querySelector("#text").value="";
 		}
-	</script>
+		var longPressTime;
+		$(function(){
+			resizeHeight(document.body.scrollHeight);
+			$('#cname').on('mousedown',function(){
+				console.log('cname down');
+			});
+			$(document).on('mousedown','#showMsg ul li label',function(){
+				console.log('down');
+				var name=$(this).html();
+				longPressTime=setTimeout(function(){
+					$('#cname').val(name);	
+				},2000);
+			});
+			$(document).on('mouseup','#showMsg ul li label',function(){
+				console.log('up');
+				clearTimeout(longPressTime);
+			});
+		});
+		window.onresize=function(){
+			resizeHeight(window.innerHeight);
+		};
 
+		function resizeHeight(hhh){
+			var h=hhh-$('#showMsg').offset().top-15;
+			$('#showMsg').css('height',h+'px');
+			var hpm=document.body.scrollHeight-$('#cname').parent().offset().top;
+			h=$('#showMsg').height()-hpm-30;
+			$('#showMsg').css('height',h+'px');
+		}
+	</script>
+	<style>
+		/*
+		#showMsg ul li label{
+			-webkit-touch-callout:none;
+			-webkit-user-select:none;
+			-khtml-user-select:none;
+			-moz-user-select:none;
+			-ms-user-select:none;
+			user-select:none;
+		}
+		*/
+	</style>
 
 {%endblock%}
 
@@ -90,13 +130,14 @@
 		</section>
 	</div>
 	<div class="form-group">
-		<label>private message:</label>
+		<label class="lb_pm">private message:</label>
 		<input class="form-control" type='text' id='cname' placeholder='input client name' />
 	</div>
+	
 	<div class="form-group">
 		<textarea id="text" class="form-control" data-placement="bottom" 
 			   title="can't be empty" rows="3" cols="50"></textarea>
+		<button class="btn btn-default pull-right" style="margin-top:15px;" onclick="ws_send();">send</button>
 	</div>
-	<button class="btn btn-default pull-right" onclick="ws_send();">send</button>
 
 {%endblock%}
