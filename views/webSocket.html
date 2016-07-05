@@ -3,15 +3,17 @@
 
 {% block head %}
 <title>{{title}}</title>
+	<script src="socket.io/socket.io.js"></script>
 
-<script src="socket.io/socket.io.js"></script>
 	<script>
 	
 		var socket;
 		function btnConnect(){
+			/*
 			if(socket===undefined){
 				socket=io('http://{{ ip }}:{{ port }}');
 			}
+			*/
 		socket.on('connect',function(){
 			console.log('client connect');
 		});
@@ -30,47 +32,101 @@
 			socket.emit('sendMyData',{msg:'msg received'});
 		});
 		socket.on('system',function(data){
-			var sect_ul=document.querySelector('#showMsg ul');
-			var ttime=new Date(data.time);
-			var ddate=ttime.getHours()+':'+ttime.getMinutes()+':'+ttime.getSeconds();
-			sect_ul.innerHTML+='<li>'+data.author+': '+data.type+' '+data.text+' '+ddate+'</li>';	
-
-
-		});
+			var sect=document.querySelector('#showMsg');
+			sect.innerHTML+='<div class="container"><div class="row"><div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">'+data.author+' : '+data.text+' '+data.time+'</div></div></div>';
+			$("#audNotif").get(0).play();
+			});
 		socket.on('message',function(data){
-			var sect_ul=document.querySelector('#showMsg ul');
-			var ttime=new Date(data.time);
-			var ddate=ttime.getHours()+':'+ttime.getMinutes()+':'+ttime.getSeconds();
-			sect_ul.innerHTML+='<li><label class="'+data.author+'">'+data.author+'</label>: '+data.text+' '+ddate+'</li>';	
-
+			if(data.author==='system'){
+				var sect=document.querySelector('#showMsg');
+				sect.innerHTML+='<div class="row">'+data.author+' : '+data.text+' '+data.time+'</div>';	
+			}
+			else if(data.id.indexOf(socket.id)>0){
+				formatMsg(data,1);
+			}
+			else{
+				formatMsg(data,0);
+				$("#audNotif").get(0).play();
+			}
 		});
 		socket.on('private message',function(data){
-			var sect_ul=document.querySelector('#showMsg ul');
-			var ttime=new Date(data.time);
-			var ddate=ttime.getHours()+':'+ttime.getMinutes()+':'+ttime.getSeconds();
-			sect_ul.innerHTML+='<li>'+data.author+'->'+data.to+': '+data.text+' '+ddate+'</li>';	
-
-
+			if(data.id.indexOf(socket.id)<0){
+				$("#audNotif").get(0).play();
+			}
+			formatMsg(data,0);
 		});
 	}
 		function ws_send(){
-			var txt=document.querySelector("#text").value;
-			if($.trim(txt)===''){
+			var txt=$('#text').html()
+			txt=$.trim(txt);
+			if(txt===''){
 				$('#text').tooltip('show');
 				return;
 			}
 			//ws.send(txt);
 			var cname=document.querySelector('#cname');
 			if(cname.value!=''){
-				socket.emit('private message',cname.value,txt);	
+				socket.emit('private message',$.trim(cname.value),txt);	
 			}else{
 				socket.send(txt);
 			}
 			//socket.emit('sendMyData',{msg:txt});
-			document.querySelector("#text").value="";
+			$('#text').empty();
+		}
+		function formatMsg(data,flag){
+			var sect_ul=document.querySelector('#showMsg');
+			var ttime=new Date(data.time);
+			var ddate=ttime.getHours()+':'+ttime.getMinutes()+':'+ttime.getSeconds();
+			var inHtml=
+			'<div class="container">'+
+				'<div class="row">'+
+					'<p class="col-md-12 text-center">'+ddate+'</p>'+
+				'</div>'+
+				'<div class="row">'+
+					'<p '+(flag==1?'class="text-right"':'class="text-left"')+'><label '+(data.to!=undefined?"style=\"color:red;\"":"")+'>'+(data.to!=undefined?data.author+'->'+data.to:data.author)+'</label></p>'+
+				'</div>'+
+				'<div class="row">'+
+					'<div class="col-xs-1 col-md-1 col-sm-1">'+(flag!=1?'<span class="glyphicon glyphicon-user"></span>':'')+'</div>'+
+					'<div class="col-xs-10 col-md-10 col-sm-10 '+(flag==1?'text-right':'text-left')+'"><label style="background:#DADADA;border-radius:10px;padding:5px 8px;">'+data.text+'</div>'+
+					'<div class="col-xs-1 col-md-1 col-sm-1">'+(flag==1?'<span class="glyphicon glyphicon-user"></span>':'')+'</div>'+
+				'</div>'+
+			'</div>';
+
+			sect_ul.innerHTML+=inHtml;
+			sect_ul.scrollTop=sect_ul.scrollHeight;
 		}
 		var longPressTime;
 		$(function(){
+			var isLogin={{isLogin}};
+			if(!isLogin){
+				$("#loginModal").modal('show');	
+			}
+			$('#btnLog').click(function(){
+				var name=$.trim($('#loginName').val());
+				if(name!=''){
+					//start to ajax
+					var opt={
+						url:'/websocket',
+						type:'post',
+						dataType:'json',
+						data:{name:name},
+						success:function(res){
+							$('#loginModal').modal('hide');
+							if(res!=undefined&&res.ret==1){
+			if(socket===undefined){
+				socket=io('http://{{ ip }}:{{ port }}');
+			}
+								btnConnect();
+								socket.send(name);
+							}
+						},
+						error:function(res){
+							console.log(res.responseTest);	
+						}
+					};
+					$.ajax(opt);
+				}
+			});
 			resizeHeight(document.body.scrollHeight);
 			$('#cname').on('mousedown',function(){
 				console.log('cname down');
@@ -90,13 +146,20 @@
 		window.onresize=function(){
 			resizeHeight(window.innerHeight);
 		};
+		document.onkeydown =function keyevent(){
+			if(event.keyCode==13){
+				ws_send();
+			}
+		  };
 
 		function resizeHeight(hhh){
-			var h=hhh-$('#showMsg').offset().top-15;
-			$('#showMsg').css('height',h+'px');
+			var sect_ul=$('#showMsg');
+			var h=hhh-sect_ul.offset().top-15;
+			sect_ul.css('height',h+'px');
 			var hpm=document.body.scrollHeight-$('#cname').parent().offset().top;
-			h=$('#showMsg').height()-hpm-30;
-			$('#showMsg').css('height',h+'px');
+			h=sect_ul.height()-hpm-30;
+			sect_ul.css('height',h+'px');
+			sect_ul.get(0).scrollTop=sect_ul.get(0).scrollHeight;
 		}
 	</script>
 	<style>
@@ -121,23 +184,22 @@
 {%endblock%}
 
 {% block content %}
-	<div class="form-group" style="height:100%;overflow-y:auto;">
-		<button class="btn btn-primary pull-right" onclick="btnConnect();">connect</button>
-	</div>
-	<div class="form-group">
-		<section id='showMsg' style="clear:both;display:block;margin-bottom:30px;height:100px;overflow-y:auto;border:1px solid gray;">
-			<ul></ul>	
+	<div class="row">
+		<section id='showMsg' style="clear:both;display:block;margin-bottom:30px;height:100px;overflow-y:auto;border:1px solid gray;overflow-x:hidden;">
 		</section>
 	</div>
+	<div class="row">
 	<div class="form-group">
 		<label class="lb_pm">private message:</label>
 		<input class="form-control" type='text' id='cname' placeholder='input client name' />
 	</div>
+	</div>
 	
+	<div class="row">
 	<div class="form-group">
-		<textarea id="text" class="form-control" data-placement="bottom" 
-			   title="can't be empty" rows="3" cols="50"></textarea>
+		<div id="text" class="form-control" data-placement="bottom" title="can't be empty" contenteditable="true"></div>
 		<button class="btn btn-default pull-right" style="margin-top:15px;" onclick="ws_send();">send</button>
+	</div>
 	</div>
 
 {%endblock%}

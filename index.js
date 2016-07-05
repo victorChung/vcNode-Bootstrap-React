@@ -5,6 +5,7 @@ var fs=require('fs');
 var url=require('url');
 var bodyParser=require('body-parser');
 var cookieParser=require('cookie-parser');
+var session=require('express-session');
 var favicon=require('serve-favicon');
 var logger=require('morgan');
 var path=require('path');
@@ -30,8 +31,24 @@ app.use(express.static(path.join(__dirname,'public')));
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
+app.use(session({
+	resave:true,
+	saveUninitialized:false,
+	secret:'demo'
+}));
 
+app.use(function(req,res,next){
+	next();
+});
 //app.use('/',routers.index);
+
+var server=app.listen(app.get('port'),function(){
+	console.log('server started on ip : '+app.get('ip')+':'+app.get('port'));
+});
+//var socketIO=require('./lib/vcSocket')(server);
+var socketIO=require('./lib/vcSocket');
+socketIO=socketIO(server);
+
 
 app.get('/',routers.index);
 app.post('/showPost',showPost);
@@ -56,12 +73,28 @@ app.get('/serverSentEvent',function(req,res){
 	res.end("data: "+dd+'\n\n');
 });
 
+
 app.get('/testWebSocket',function(req,res){
 	res.render('testWebSocket',{ip:app.get('ip'),port:app.get('port')});
 });
 
 app.get('/webSocket',function(req,res){
-	res.render('webSocket',{ip:app.get('ip'),port:app.get('port'),title:'socket.io'});
+	if(!req.session.user){
+		res.render('webSocket',{ip:app.get('ip'),port:app.get('port'),title:'socket.io',isLogin:false});
+	}else{
+		res.render('webSocket',{ip:app.get('ip'),port:app.get('port'),title:'socket.io',isLogin:true});
+	}
+});
+app.post('/webSocket',function(req,res){
+	console.log('name : '+req.body.name);
+	var ret=1;
+	for(var i in socketIO){
+		if(socketIO[i].name==req.body.name){
+			ret=0;
+			break;
+		}
+	}
+	res.json({ret:ret});
 });
 /*
 if(app.get('env')==='development'){
@@ -71,10 +104,4 @@ if(app.get('env')==='development'){
 	});
 }
 */
-var server=app.listen(app.get('port'),function(){
-	console.log('server started on ip : '+app.get('ip')+':'+app.get('port'));
-});
-
-var socketIO=require('./lib/vcSocket')(server);
-
 module.exports=app;
