@@ -49,6 +49,7 @@ var server=app.listen(app.get('port'),function(){
 var socketIO=require('./lib/vcSocket');
 socketIO=socketIO(server);
 
+var vcNews=require('./controllers/vcNews');
 
 app.get('/',routers.index);
 app.post('/showPost',showPost);
@@ -56,11 +57,11 @@ app.get('/start',start);
 app.post('/upload',upload.upload);
 app.post('/uploadProgress',upload.uploadProgress);
 app.get('/list',function(req,res){
-	var vcNews=require('./controllers/vcNews');
-	vcNews.findAll(res);
+	vcNews.create(res);	
+	//vcNews.findAll(res);
 });
 app.post('/model',function(req,res){
-	var vcNews=require('./controllers/vcNews');
+	//var vcNews=require('./controllers/vcNews');
 	vcNews.findAll(res);
 });
 app.get('/test',function(req,res){
@@ -79,10 +80,11 @@ app.get('/testWebSocket',function(req,res){
 });
 
 app.get('/webSocket',function(req,res){
+	console.log('session.user : '+req.session.user);
 	if(!req.session.user){
-		res.render('webSocket',{ip:app.get('ip'),port:app.get('port'),title:'socket.io',isLogin:false});
+		res.render('webSocket',{ip:app.get('ip'),port:app.get('port'),title:'socket.io',isLogin:0,name:'""'});
 	}else{
-		res.render('webSocket',{ip:app.get('ip'),port:app.get('port'),title:'socket.io',isLogin:true});
+		res.render('webSocket',{ip:app.get('ip'),port:app.get('port'),title:'socket.io',isLogin:1,name:'"victorchung"'});
 	}
 });
 app.post('/webSocket',function(req,res){
@@ -96,6 +98,24 @@ app.post('/webSocket',function(req,res){
 	}
 	res.json({ret:ret});
 });
+
+
+
+/* dir /ad */
+app.get('/ad/login',function(req,res){
+	res.render('ad/login',{});
+});
+app.post('/ad/login',function(req,res){
+	if(req.body.name.toLowerCase()=='victorchung'&&req.body.pwd==1){
+		req.session.user=req.body.name.toLowerCase();
+		res.json({ret:1});
+	}
+	else{
+		res.json({ret:0});
+	}
+});
+
+
 /*
 if(app.get('env')==='development'){
 	app.use(function(err,req,res,next){

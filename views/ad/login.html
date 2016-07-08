@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv='Content-Type' content='text/html' charset='utf-8' / >
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0" >
+	<link href="http://apps.bdimg.com/libs/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+	<script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+	<style>
+		.container{
+			/*margin-top:30%;*/
+			position:fixed;
+			top:40%;
+			width:100%;
+		}
+	</style>
+	<script>
+		$(function(){
+			$('.alert').hide();
+		$('.container').css({'top':function(){
+			return $(this).offset().top-($(this).height()/2)+'px';
+		}});
+	});
+	</script>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-xs-offset-1 col-xs-10 form-horizontal">
+				<!--<form class="form-horizontal" role="form">-->
+					<div class="form-group">
+						<label class="col-xs-2 control-label" for="name">user</label>
+						<div class="col-xs-10">
+							<input type="text" class="form-control" name="name" id="name" placeholder="input your name" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-xs-2 control-label" for="pwd">password</label>
+						<div class="col-xs-10">
+							<input type="password" class="form-control" name="pwd" id="pwd" placeholder="input your password" />
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-xs-offset-2 col-xs-10">
+							<button id="login" data-loading-text="logining" class="btn btn-primary">login</button>	
+						</div>
+					</div>
+					<div class="alert alert-warning">
+						<strong>user or pwd is wrong</strong>
+					</div>
+					<!--<form>-->
+			</div>
+
+		</div>
+	</div>
+	<script>
+		$('#name,#pwd').change(function(){
+			$('.alert').hide();
+			$('#name,#pwd').removeClass('bg-warning');
+		});
+		$('#login').click(function(){
+			$(this).button('loading');
+			var name=$.trim($('#name').val());
+			var pwd=$.trim($('#pwd').val())
+			var opt={
+				type:'post',
+				url:'./login',
+				dataType:'json',
+				data:{name:name,pwd:pwd},
+				success:function(res){
+					$('#login').button('reset');
+					if(res.ret==1){
+						location.href='/ad/list';	
+					}else{
+						$('.alert').show();
+						/*
+						$('#name').addClass('alert-warning');
+						$('#pwd').addClass('alert-warning');
+						*/
+					}
+				},
+				error:function(res){
+					console.log(res.responseText);
+				}
+			};
+			$.ajax(opt)
+		});
+	</script>
+
+	<script src="http://apps.bdimg.com/libs/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+</body>
+</html>

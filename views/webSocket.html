@@ -98,8 +98,16 @@
 		var longPressTime;
 		$(function(){
 			var isLogin={{isLogin}};
-			if(!isLogin){
+			if(isLogin==0){
 				$("#loginModal").modal('show');	
+			}
+			else if(isLogin==1){
+				if(socket===undefined){
+					socket=io('http://{{ ip }}:{{ port }}');
+				}
+				btnConnect();
+				var name={% autoescape false %}{{name}}{% endautoescape %};
+				socket.send(name);
 			}
 			$('#btnLog').click(function(){
 				var name=$.trim($('#loginName').val());
@@ -113,9 +121,9 @@
 						success:function(res){
 							$('#loginModal').modal('hide');
 							if(res!=undefined&&res.ret==1){
-			if(socket===undefined){
-				socket=io('http://{{ ip }}:{{ port }}');
-			}
+								if(socket===undefined){
+									socket=io('http://{{ ip }}:{{ port }}');
+								}
 								btnConnect();
 								socket.send(name);
 							}
