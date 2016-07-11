@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+<title>{{title}}</title>
+{% endblock %}	
+
+{% block content %}
+<div class="row">
+	<article class="col-md-12">
+		<h1 class="text-center text-primary">{{title}}</h1>
+		<section style="padding:15px;box-shadow: 5px 5px 5px gray;border:1px solid gray;height:100%;overflow:auto;">
+			{{content|safe}}
+		</section>
+	</article>
+</div>
+{%endblock%}

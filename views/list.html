@@ -1,36 +1,39 @@
 {% extends 'layout.html' %}
 
+{% block head %}
+<style>
+	ul.newslist{}
+	ul.newslist li{height:3em;line-height: 3em;padding:0 10px;}
+	ul.newslist li:nth-child(odd){background-color:#F9F9F9;}
+	ul.newslist li:nth-child(even){background-color:white;}
+	ul.newslist li a.atitle{font-size: 1em;}
+	ul.newslist li:hover{background-color:#82B3D6;}
+	ul.newslist li:hover a.atitle{color:white;}
+</style>
+{% endblock %}
+
+
 
 {% block title %}
 {{title}}
 {%endblock%}
 
 {% block content %}
-<script src='http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js'></script>
+	{% for bread in breads %}
+		{% if loop.first %}<ul class="breadcrumb">{% endif %}
+			<li><a href="{{bread.url}}">{{bread.name}}</a></li>
+		{% if loop.last %}</ul>{% endif %}
+	{% endfor %}
+	{% if tag != '' %}
+		<div class="row">
+			<h3 style="padding-left:15px;margin:0 0 1em 0;">
+				<label class="label label-default">{{tag}}</label>
+			</h3>
+		</div>
+	{% endif %}
 	{% for item in items %}
-		{% if loop.first %}<ul>{% endif %}
-			<li><a href="/n?{{ item._id.toString() }}">{{ item.title }}</a></li>
+		{% if loop.first %}<ul class="list-unstyled newslist">{% endif %}
+			<li><span class="pull-right">{{ item.editTime.toLocaleString() }}</span><a class="atitle" href="/news/{{ item._id.toString() }}">{{ item.title }}</a></li>
 		{% if loop.last %}<ul>{% endif %}
 	{% endfor %}
-<script>
-function testAjax(){
-		var opt={
-			type:'post',
-			url:'./model',
-			contentType:'application/json',
-			dataType:'json',
-			data:{},
-			success:function(res){
-				var progress=res;
-					window.stop();
-					//下面的方法是针对IE的
-					document.execCommand("stop");
-			},
-			error:function(err){
-				console.log(err);
-			}
-		};
-		$.ajax(opt);
-	}
-</script>
 {%endblock%}

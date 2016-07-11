@@ -1,0 +1,63 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+	<script type="text/javascript" src="/ueditor/ueditor.config.js"></script>
+	<script type="text/javascript" src="/ueditor/ueditor.all.js"></script>
+	<script type="text/javascript" src="/ueditor/lang/zh-cn/zh-cn.js"></script>
+	<div class="row">
+		<div class="col-lg-12 form-horizontal">
+			<div class="form-group">
+				<label for="title" class="col-md-2 control-label">title</label>
+				<div class="col-md-10">
+					<input type="text" class="form-control" id="title" placeholder="news title" value="{{title}}">
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="content" class="col-md-2 control-label">content</label>
+				<div class="col-md-10">
+					<script id="editor" name="content" type="text/plain"></script>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-md-offset-2 col-md-10">
+					<button id="btnSubmit" data-loading-text="submit..." class="btn btn-primary">submit</button>
+				</div>
+			</div>
+			<input type="hidden" id="objId" value="{{objId}}">
+			<script>
+				var ue=UE.getEditor('editor');
+				ue.ready(function(){
+					if({{content|safe}}!=''){
+						var con={{content|safe}};
+						ue.setContent(unescape(con));
+					}
+				});
+				$('#btnSubmit').click(function(){
+					var title=escape($.trim($('#title').val()));
+					//var content=escape($.trim($('#content').val()));
+					var content=escape($.trim(ue.getContent()));
+					var objId=$.trim($('#objId').val());
+					var opt={
+						url:'/ad/{{name}}',
+						type:'post',
+						dataType:'json',
+						data:{title:title,content:content,objId:objId},
+						success:function(res){
+							if(res.ret==0){
+								console.log('failed');	
+							}else{
+								console.log('success');	
+							}
+						},
+						error:function(res){
+							console.log(res.responseText);
+						}
+					};
+					$.ajax(opt);
+				});
+			</script>	
+		</div>
+		
+	</div>
+{%endblock%}
+

@@ -1,5 +1,6 @@
 exports.index=function(req,res){
 	console.log('router get / ');
 	console.log('index.js : '+req.url);
-	res.render('index',{title:'index'});
+	console.log('navs : '+global.navTags);
+	res.render('index',{title:'index',navs:global.navTags});
 };

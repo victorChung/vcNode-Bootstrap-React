@@ -8,7 +8,7 @@
 	{% block head %}{% endblock %}	
 </head>
 <body>
-	<header style="height:100%;overflow:auto;">
+	<header style="">
 	<nav class="navbar navbar-default col-lg-10 col-lg-offset-1" role="navigation">
 		<div class="navbar-header col-lg-offset-2 col-md-offset-1 col-sm-offset-1">
 			<span class="navbar-brand">That is it</span>
@@ -22,10 +22,24 @@
 			<ul class="nav navbar-nav nav-pills">
 				<li><a href="/">Home</a></li>	
 				<li><a href="/list">Articles</a></li>	
-				<li><a href="profile.html">Profile</a></li>	
+				<li class="dropdown">
+					<a class="dropdown-toggle" data-toggle="dropdown" href="/list">
+						Tags	
+						<b class="caret"></b>
+					</a>
+					<ul class="dropdown-menu">
+						{% for nav in navs %}
+							{% if nav!='唠嗑' %}
+								<li><a href="/list/{{nav}}">{{nav}}</a></li>	
+							{% endif %}
+						{% endfor %}
+						<li class="divider"></li>
+						<li><a href="/list/唠嗑">唠嗑</a></li>
+					</ul>
+				</li>
+				<li><a href="/profile">Profile</a></li>	
 				<li><a href="/webSocket"><span class="badge pull-right">2</span>Chat</a></li>
-				<li class="hidden-xs"><a href="contact">Contact</a></li>	
-				<li class=""><a href="/login">Sign in</a></li>
+				<li class="hidden-xs"><a href="/contact">Contact</a></li>	
 			</ul>
 		</div>
 

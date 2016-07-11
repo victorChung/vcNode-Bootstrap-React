@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+<title>{{title}}</title>
+{% endblock %}	
+
+{% block content %}
+<div class="row">
+	<article class="col-md-9">
+		<h1 class="text-center text-primary">{{title}}</h1>
+		<section style="height:100%;overflow:auto;margin-bottom:20px;">
+			<label class="pull-left">tags:
+				{% for tag in tags %}
+				<a class="label label-default" href="/list/{% autoescape true %}{{tag}}{% endautoescape %}">{{tag}}</a>
+				{% endfor %}
+			</label>
+			<label class="pull-right">{{editTime}}</label>
+		</section>
+		<section style="padding:15px;box-shadow: 5px 5px 5px gray;border:1px solid gray;height:100%;overflow:auto;">
+			{{content|safe}}
+			<blockquote class="pull-right"><small>{{author}}</small></blockquote>
+		</section>
+	</article>
+	<aside class="col-md-3">
+	<h5>tagsNews</h5>
+	{% for item in items %}
+		{% if loop.first %}<ul class="list-unstyled">{% endif %}
+			<li><a href="/news/{{ item._id.toString() }}">{{ item.title }}</a></li>
+		{% if loop.last %}<ul>{% endif %}
+	{% endfor %}
+	</aside>
+</div>
+{%endblock%}

@@ -1,0 +1,53 @@
+{% extends 'layout.html' %}
+
+{% block head %}
+<style>
+	section.row{margin-bottom:15px;}
+	.container ul{}
+	.container ul li{height:3em;line-height: 3em;padding:0 10px;}
+	.container ul li:nth-child(odd){background-color:#F9F9F9;}
+	.container ul li:nth-child(even){background-color:white;}
+	.container ul li a.atitle{font-size: 1em;}
+	.container ul li a.adel{cursor:pointer;}
+	.container ul li:hover{background-color:#82B3D6;}
+	.container ul li:hover a.atitle{color:white;}
+</style>
+{% endblock %}
+
+{% block content %}
+	<section class="row">
+		<a class="btn btn-default" href="/ad/addnews">add News</a>
+	</section>
+	{% for item in items %}
+		{% if loop.first %}<ul class="list-unstyled">{% endif %}
+			<li class="{{ loop.cycle('odd','even') }}">
+				<a class="atitle" href="/ad/addnews/{{ item._id.toString() }}">{{ item.title }}</a>
+				<a class="text-danger pull-right adel" id="{{ item._id.toString() }}">delete</a>
+			</li>
+		{% if loop.last %}<ul>{% endif %}
+	{% endfor %}
+<script>
+	$(function(){
+		$(document).on('click','.adel',function(){
+			//confirm...
+
+			var id=$(this).attr('id');
+			var opt={
+				type:'delete',
+				url:'/ad/list',
+				dataType:'json',
+				data:{id:id},
+				success:function(res){
+					if(res.ret==1){
+						$('#'+id).parent().remove();				
+					}	
+				},
+				error:function(err){
+					console.log(err);
+				}
+			};
+			$.ajax(opt);
+		});
+	});
+</script>
+{%endblock%}
