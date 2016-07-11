@@ -184,16 +184,19 @@ app.post('/ad/login',function(req,res){
 	}
 });
 app.get('/ad/list',function(req,res){
+	if(!req.session.user)res.redirect('/');
 	vcNews.findAll(function(docs){
 		res.render('ad/list',{items:docs,navs:app.get('navTags')});	
 	});
 });
 app.get('/ad/addnews',function(req,res){
+	if(!req.session.user)res.redirect('/');
 	vcNews.findAllTags(function(vc){
 		res.render('ad/addnews',{content:'""',tags:'""',allTags:vc.toString().split(','),navs:app.get('navTags')});
 	});
 });
 app.get('/ad/addnews/:id',function(req,res){
+	if(!req.session.user)res.redirect('/');
 	vcNews.findbyId(req.params.id,function(docs){
 		vcNews.findAllTags(function(vc){
 			res.render('ad/addnews',{title:docs.title,content:'"'+escape(docs.content)+'"',author:docs.author,tags:'"'+docs.tags+'"',objId:docs._id.toString(),allTags:vc.toString().split(','),navs:app.get('navTags')});
@@ -201,38 +204,45 @@ app.get('/ad/addnews/:id',function(req,res){
 	});
 });
 app.put('/ad/addnews',function(req,res){
+	if(!req.session.user)res.redirect('/');
 	vcNews.create(req,function(id){
 		res.json({ret:id});
 	});	
 });
 app.post('/ad/addnews',function(req,res){
+	if(!req.session.user)res.redirect('/');
 	vcNews.update(req,function(i){
 		res.json({ret:i});
 	});
 });
 app.delete('/ad/list',function(req,res){
+	if(!req.session.user)res.redirect('/');
 	console.log('delete : '+req.body.id);
 	vcNews.removebyId(req.body.id,function(i){
 		res.json({ret:i});
 	});
 });
 app.get('/ad/profile',function(req,res){
+	if(!req.session.user)res.redirect('/');
 	vcCommon.findbyName('profile',function(docs){
 		res.render('ad/addCommon',{name:'profile',title:docs.title,content:'"'+escape(docs.content)+'"',objId:docs._id.toString(),navs:app.get('navTags')});
 	});	
 });
 app.post('/ad/profile',function(req,res){
+	if(!req.session.user)res.redirect('/');
 	vcCommon.update(req,function(i){
 		res.json({ret:i});
 	});
 });
 app.get('/ad/contact',function(req,res){
+	if(!req.session.user)res.redirect('/');
 	var name='contact';
 	vcCommon.findbyName(name,function(docs){
 		res.render('ad/addCommon',{name:name,title:docs.title,content:'"'+escape(docs.content)+'"',objId:docs._id.toString(),navs:app.get('navTags')});
 	});	
 });
 app.post('/ad/contact',function(req,res){
+	if(!req.session.user)res.redirect('/');
 	vcCommon.update(req,function(i){
 		res.json({ret:i});
 	});
