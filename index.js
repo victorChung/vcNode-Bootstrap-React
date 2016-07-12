@@ -184,6 +184,9 @@ app.post('/ad/profile',isLogin,routers.common.adPostProfile);
 app.get('/ad/contact',isLogin,routers.common.adContact);
 app.post('/ad/contact',isLogin,routers.common.adPostContact);
 
+app.get('*',function(req,res){
+	res.end('404');
+});
 /*
 if(app.get('env')==='development'){
 	app.use(function(err,req,res,next){
