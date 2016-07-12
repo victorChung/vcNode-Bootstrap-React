@@ -210,4 +210,34 @@
 	</div>
 	</div>
 
+
+
+	<audio id="audNotif" style="display:none;">
+		<source src="/audio/notif.mp3" type="audio/mpeg">
+	</audio>
+
+	<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" id="loginModalLabel">
+						you need a name	
+					</h4>
+				</div>
+				<div class="modal-body">
+					<label>name:</label>
+					<input id="loginName" class="form-control"  />
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+					<button type="button" id="btnLog" class="btn btn-primary">submit</button>
+				</div>
+		</div>
+		</div>
+	</div>
+
+
+
+
 {%endblock%}

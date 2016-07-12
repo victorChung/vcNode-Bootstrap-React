@@ -1,15 +1,3 @@
-/*
-var mongoose=require('mongoose');
-var options={
-	db:{native_parser:true},
-	server:{poolSize:5},
-	socketOptions:{
-		keepAlive:1
-	},
-	auto_reconnect:true
-};
-var conn=mongoose.createConnection('mongodb://localhost/secondProj',options);
-*/
 var mongoose=global.mongoose;
 var conn=global.conn;
 

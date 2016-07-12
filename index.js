@@ -10,13 +10,18 @@ var favicon=require('serve-favicon');
 var logger=require('morgan');
 var path=require('path');
 var ueditor=require('ueditor');
-var routers=require('./routers');
 var showPost=require('./routers/showPost');
 var start=require('./routers/start');
 var upload=require('./routers/upload');
 var ip=require('./util/ip');
 global.mongoose=require('./lib/vcMongoose').mongoose;
 global.conn=require('./lib/vcMongoose').conn;
+
+var routers={};
+routers=require('./routers');
+routers.list=require('./routers/list');
+routers.news=require('./routers/news');
+routers.common=require('./routers/common');
 
 var app=express();
 
@@ -27,7 +32,6 @@ app.engine('html',swig.renderFile);
 app.set('ip',ip());
 app.set('port',process.env.PORT||8888);
 app.set('views',__dirname+'/views');
-//app.use('/',route);
 app.use(logger('dev'));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname,'public')));
@@ -74,6 +78,7 @@ var server=app.listen(app.get('port'),function(){
 var socketIO=require('./lib/vcSocket');
 socketIO=socketIO(server);
 
+//set controller
 var vcNews=require('./controllers/vcNews');
 var vcCommon=require('./controllers/vcCommon');
 var vcUsers=require('./controllers/vcUsers');
@@ -86,51 +91,13 @@ var navTags=function(){
 	});
 }();
 
-app.get('/',routers.index);
+//routers
+
 app.post('/showPost',showPost);
 app.get('/start',start);
 app.post('/upload',upload.upload);
 app.post('/uploadProgress',upload.uploadProgress);
-app.get('/list',function(req,res){
-	vcNews.findAll(function(docs){
-		res.render('list',{title:'list',items:docs,navs:app.get('navTags')});	
-	});
-});
-app.get('/list/:tag',function(req,res){
-	var tag=req.params.tag;
-	console.log(':tag : '+JSON.stringify(req.url));
-	var breads=[{
-		name:'Articles',
-		url:'/list'
-	},
-	{
-		name:tag,
-		url:req.url
-	}];
-	vcNews.findbyTags(new Array(tag),function(docs){
-		res.render('list',{title:tag,items:docs,tag:tag,navs:app.get('navTags')});
-	});
-});
-app.get('/news/:id',function(req,res){
-	vcNews.findbyId(req.params.id,function(docs){
-		vcNews.findbyTags(docs.tags,function(vc){
-			var editTime=docs.editTime.toLocaleString();
-			res.render('news',{title:docs.title,content:docs.content,author:docs.author,tags:docs.tags,editTime:editTime,items:vc,navs:app.get('navTags')});
-		});
-	});	
-});
-app.get('/profile',function(req,res){
-	vcCommon.findbyName('profile',function(docs){
-		res.render('common',{title:docs.title,content:docs.content,navs:app.get('navTags')});
-	});
-});
-app.get('/contact',function(req,res){
-	vcCommon.findbyName('contact',function(docs){
-		res.render('common',{title:docs.title,content:docs.content,navs:app.get('navTags')});
-	});
-});
 app.post('/model',function(req,res){
-	//var vcNews=require('./controllers/vcNews');
 	vcNews.findAll(res);
 });
 app.get('/test',function(req,res){
@@ -143,10 +110,18 @@ app.get('/serverSentEvent',function(req,res){
 	res.end("data: "+dd+'\n\n');
 });
 
-
 app.get('/testWebSocket',function(req,res){
 	res.render('testWebSocket',{ip:app.get('ip'),port:app.get('port')});
 });
+
+
+app.get('/',routers.index);
+app.get('/list',routers.list.list);
+app.get('/list/:tag',routers.list.listTag);
+app.get('/news/:id',routers.news.news);
+app.get('/profile',routers.common.profile);
+app.get('/contact',routers.common.contact);
+
 
 app.get('/webSocket',function(req,res){
 	console.log('session.user : '+req.session.user);
@@ -156,6 +131,7 @@ app.get('/webSocket',function(req,res){
 		res.render('webSocket',{ip:app.get('ip'),port:app.get('port'),title:'socket.io',isLogin:1,name:'"victorchung"',navs:app.get('navTags')});
 	}
 });
+//add name to chat
 app.post('/webSocket',function(req,res){
 	console.log('name : '+req.body.name);
 	var ret=1;
@@ -168,6 +144,15 @@ app.post('/webSocket',function(req,res){
 	res.json({ret:ret});
 });
 
+
+function isLogin(req,res,next){
+	if(!req.session.user){
+		res.redirect('/ad/login');
+	}
+	else{
+		next();
+	}
+}
 
 
 /* dir /ad */
@@ -183,70 +168,21 @@ app.post('/ad/login',function(req,res){
 		res.json({ret:0});
 	}
 });
-app.get('/ad/list',function(req,res){
-	if(!req.session.user)res.redirect('/');
-	vcNews.findAll(function(docs){
-		res.render('ad/list',{items:docs,navs:app.get('navTags')});	
-	});
-});
-app.get('/ad/addnews',function(req,res){
-	if(!req.session.user)res.redirect('/');
-	vcNews.findAllTags(function(vc){
-		res.render('ad/addnews',{content:'""',tags:'""',allTags:vc.toString().split(','),navs:app.get('navTags')});
-	});
-});
-app.get('/ad/addnews/:id',function(req,res){
-	if(!req.session.user)res.redirect('/');
-	vcNews.findbyId(req.params.id,function(docs){
-		vcNews.findAllTags(function(vc){
-			res.render('ad/addnews',{title:docs.title,content:'"'+escape(docs.content)+'"',author:docs.author,tags:'"'+docs.tags+'"',objId:docs._id.toString(),allTags:vc.toString().split(','),navs:app.get('navTags')});
-		});
-	});
-});
-app.put('/ad/addnews',function(req,res){
-	if(!req.session.user)res.redirect('/');
-	vcNews.create(req,function(id){
-		res.json({ret:id});
-	});	
-});
-app.post('/ad/addnews',function(req,res){
-	if(!req.session.user)res.redirect('/');
-	vcNews.update(req,function(i){
-		res.json({ret:i});
-	});
-});
-app.delete('/ad/list',function(req,res){
-	if(!req.session.user)res.redirect('/');
-	console.log('delete : '+req.body.id);
-	vcNews.removebyId(req.body.id,function(i){
-		res.json({ret:i});
-	});
-});
-app.get('/ad/profile',function(req,res){
-	if(!req.session.user)res.redirect('/');
-	vcCommon.findbyName('profile',function(docs){
-		res.render('ad/addCommon',{name:'profile',title:docs.title,content:'"'+escape(docs.content)+'"',objId:docs._id.toString(),navs:app.get('navTags')});
-	});	
-});
-app.post('/ad/profile',function(req,res){
-	if(!req.session.user)res.redirect('/');
-	vcCommon.update(req,function(i){
-		res.json({ret:i});
-	});
-});
-app.get('/ad/contact',function(req,res){
-	if(!req.session.user)res.redirect('/');
-	var name='contact';
-	vcCommon.findbyName(name,function(docs){
-		res.render('ad/addCommon',{name:name,title:docs.title,content:'"'+escape(docs.content)+'"',objId:docs._id.toString(),navs:app.get('navTags')});
-	});	
-});
-app.post('/ad/contact',function(req,res){
-	if(!req.session.user)res.redirect('/');
-	vcCommon.update(req,function(i){
-		res.json({ret:i});
-	});
-});
+app.get('/ad/list',isLogin,routers.list.adList);
+//进入添加界面
+app.get('/ad/addnews',isLogin,routers.news.adNews);
+//进入编辑界面
+app.get('/ad/addnews/:id',isLogin,routers.news.adGetNews);
+//添加文章
+app.put('/ad/addnews',isLogin,routers.news.adPutNews);
+//修改文章
+app.post('/ad/addnews',isLogin,routers.news.adPostNews);
+//删除文章
+app.delete('/ad/list',isLogin,routers.news.adDeleteNews);
+app.get('/ad/profile',isLogin,routers.common.adProfile);
+app.post('/ad/profile',isLogin,routers.common.adPostProfile);
+app.get('/ad/contact',isLogin,routers.common.adContact);
+app.post('/ad/contact',isLogin,routers.common.adPostContact);
 
 /*
 if(app.get('env')==='development'){
