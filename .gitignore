@@ -1,7 +1,9 @@
 *.swp
-.DS_Store
-
+*.DS_Store
+router.js
+server.js
 
 
 node_modules/
+mongoDemo/
 upload/
