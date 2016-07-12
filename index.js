@@ -248,6 +248,9 @@ app.post('/ad/contact',function(req,res){
 	});
 });
 
+app.get('*',function(req,res){
+	res.end('404');
+});
 /*
 if(app.get('env')==='development'){
 	app.use(function(err,req,res,next){
