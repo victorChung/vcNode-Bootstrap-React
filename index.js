@@ -93,6 +93,10 @@ var navTags=function(){
 
 //routers
 
+app.get('/demotest/menu',function(req,res){
+	//res.writeHead(200,{'content-Type':'text/html'});
+	res.render('demotest/menu');
+});
 app.post('/showPost',showPost);
 app.get('/start',start);
 app.post('/upload',upload.upload);
@@ -185,7 +189,7 @@ app.get('/ad/contact',isLogin,routers.common.adContact);
 app.post('/ad/contact',isLogin,routers.common.adPostContact);
 
 app.get('*',function(req,res){
-	res.end('404');
+	res.end('404...');
 });
 /*
 if(app.get('env')==='development'){

@@ -130,11 +130,11 @@ var removebyId=function(id,cb){
 };
 
 
-module.exports.create=create;
-module.exports.findAll=findAll;
-module.exports.update=update;
-module.exports.save=save;
-module.exports.findbyId=findbyId;
-module.exports.findbyTags=findbyTags;
-module.exports.findAllTags=findAllTags;
-module.exports.removebyId=removebyId;
+exports.create=create;
+exports.findAll=findAll;
+exports.update=update;
+exports.save=save;
+exports.findbyId=findbyId;
+exports.findbyTags=findbyTags;
+exports.findAllTags=findAllTags;
+exports.removebyId=removebyId;

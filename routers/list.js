@@ -2,7 +2,7 @@ var vcNews=require('../controllers/vcNews');
 
 module.exports.list=function(req,res){
 	vcNews.findAll(function(docs){
-		res.render('list',{title:'list',items:docs,navs:global.navTags});
+		res.render('list',{title:'list',items:docs,navs:global.navTags,tag:''});
 	});
 };
 
