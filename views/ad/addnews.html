@@ -66,6 +66,9 @@
 				});
 				$('#btnSubmit').click(function(){
 					var title=escape($.trim($('#title').val()));
+					if(title===''){
+						$('#title').focus().attr('placeholder','you need a title');
+					}
 					//var content=escape($.trim($('#content').val()));
 					var content=escape($.trim(ue.getContent()));
 					var arr=[];

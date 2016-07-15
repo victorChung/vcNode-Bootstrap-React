@@ -53,7 +53,14 @@ var create=function(req,cb){
 	vcNewsEntity=require('../models/news')();
 	vcNewsEntity.title=unescape(req.body.title);
 	vcNewsEntity.content=unescape(req.body.content);
-	vcNewsEntity.tags=unescape(req.body.tags).split(' ');
+	var tags=unescape(req.body.tags);
+	if(tags===''){
+		tags=[];
+	}
+	else{
+		tags=tags.split(' ');
+	}
+	vcNewsEntity.tags=tags;
 	vcNewsEntity.author=unescape(req.body.author);
 	vcNewsModel.create(vcNewsEntity,function(err,vcNewsEntity){
 		if(err){

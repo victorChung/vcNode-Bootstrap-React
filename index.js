@@ -18,10 +18,12 @@ global.mongoose=require('./lib/vcMongoose').mongoose;
 global.conn=require('./lib/vcMongoose').conn;
 
 var routers={};
+//{{{ import routers
 routers=require('./routers');
 routers.list=require('./routers/list');
 routers.news=require('./routers/news');
 routers.common=require('./routers/common');
+//}}}
 
 var app=express();
 
@@ -44,6 +46,7 @@ app.use(session({
 	saveUninitialized:false,
 	secret:'demo'
 }));
+//{{{ ueditor config
 app.use('/ueditor/ue',ueditor(path.join(__dirname,'public'),function(req,res,next){
 	if(req.query.action==='uploadimage'){
 		var foo=req.ueditor;
@@ -65,7 +68,7 @@ app.use('/ueditor/ue',ueditor(path.join(__dirname,'public'),function(req,res,nex
 		res.redirect('/ueditor/ueditor.config.json');
 	}
 }));
-
+//}}}
 app.use(function(req,res,next){
 	next();
 });
@@ -78,10 +81,11 @@ var server=app.listen(app.get('port'),function(){
 var socketIO=require('./lib/vcSocket');
 socketIO=socketIO(server);
 
-//set controller
+//{{{ set controller
 var vcNews=require('./controllers/vcNews');
 var vcCommon=require('./controllers/vcCommon');
 var vcUsers=require('./controllers/vcUsers');
+//}}}
 
 var navTags=function(){
 	vcNews.findAllTags(function(vc){
@@ -91,12 +95,14 @@ var navTags=function(){
 	});
 }();
 
-//routers
+//{{{ start routing
 
 app.get('/demotest/menu',function(req,res){
 	//res.writeHead(200,{'content-Type':'text/html'});
 	res.render('demotest/menu');
 });
+
+//{{{  about test
 app.post('/showPost',showPost);
 app.get('/start',start);
 app.post('/upload',upload.upload);
@@ -117,6 +123,7 @@ app.get('/serverSentEvent',function(req,res){
 app.get('/testWebSocket',function(req,res){
 	res.render('testWebSocket',{ip:app.get('ip'),port:app.get('port')});
 });
+//}}}
 
 
 app.get('/',routers.index);
@@ -126,7 +133,7 @@ app.get('/news/:id',routers.news.news);
 app.get('/profile',routers.common.profile);
 app.get('/contact',routers.common.contact);
 
-
+//{{{ about websocket
 app.get('/webSocket',function(req,res){
 	console.log('session.user : '+req.session.user);
 	if(!req.session.user){
@@ -148,6 +155,7 @@ app.post('/webSocket',function(req,res){
 	res.json({ret:ret});
 });
 
+//}}}
 
 function isLogin(req,res,next){
 	if(!req.session.user){
@@ -160,6 +168,7 @@ function isLogin(req,res,next){
 
 
 /* dir /ad */
+//{{{ admin
 app.get('/ad/login',function(req,res){
 	res.render('ad/login',{});
 });
@@ -187,16 +196,18 @@ app.get('/ad/profile',isLogin,routers.common.adProfile);
 app.post('/ad/profile',isLogin,routers.common.adPostProfile);
 app.get('/ad/contact',isLogin,routers.common.adContact);
 app.post('/ad/contact',isLogin,routers.common.adPostContact);
+//}}}
 
 app.get('*',function(req,res){
 	res.end('404...');
 });
+//}}}
 /*
-if(app.get('env')==='development'){
-	app.use(function(err,req,res,next){
-		res.status(err.status||500);
-		res.end('\neeeerrrroooorrrrr\n');
-	});
-}
-*/
+   if(app.get('env')==='development'){
+   app.use(function(err,req,res,next){
+   res.status(err.status||500);
+   res.end('\neeeerrrroooorrrrr\n');
+   });
+   }
+   */
 module.exports=app;
